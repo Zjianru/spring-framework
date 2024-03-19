@@ -1,0 +1,13 @@
+description = "Spring test project"
+
+dependencies {
+	implementation 'org.projectlombok:lombok:1.18.30'
+	compile(project(":spring-beans"))
+	compile(project(":spring-core"))
+	compile(project(":spring-messaging"))
+	compile(project(":spring-tx"))
+	optional(project(":spring-aop"))
+	optional(project(":spring-context"))
+	optional(project(":spring-context-support"))
+	optional(project(":spring-oxm"))
+}
