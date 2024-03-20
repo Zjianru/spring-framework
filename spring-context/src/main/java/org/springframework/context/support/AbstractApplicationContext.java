@@ -69,6 +69,7 @@ import org.springframework.context.weaving.LoadTimeWeaverAwareProcessor;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.env.AbstractPropertyResolver;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
@@ -517,6 +518,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
+			// 准备上下文
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
@@ -581,6 +583,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * Prepare this context for refreshing, setting its startup date and
 	 * active flag as well as performing any initialization of property sources.
+	 * 准备此上下文以进行刷新，设置其启动日期和活动标志，以及执行任何初始化的属性源。
 	 */
 	protected void prepareRefresh() {
 		// Switch to active.
@@ -588,6 +591,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		this.closed.set(false);
 		this.active.set(true);
 
+		// 设置日志属性
 		if (logger.isDebugEnabled()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Refreshing " + this);
@@ -598,24 +602,32 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		// [ 预留接口 ] 留给子类覆盖，初始化上下文环境中的属性资源。
+		// cz - 此处可做扩展 强制容器缺少某些环境变量时启动失败
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		// 创建并获取环境对象，验证需要的属性文件是否都已经放入环境中
+		// 该位置会对所有系统变量属性进行获取验证 一旦获取不到就会抛出异常，实际验证代码的位置：AbstractPropertyResolver.validateRequiredProperties
+		// 扩展点测试可参看
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
+		// 判断刷新前的应用程序监听器集合是否为空，如果为空，则将监听器添加到此集合中
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}
 		else {
 			// Reset local application listeners to pre-refresh state.
+			// // 如果不等于空，则清空集合元素对象
 			this.applicationListeners.clear();
 			this.applicationListeners.addAll(this.earlyApplicationListeners);
 		}
 
 		// Allow for the collection of early ApplicationEvents,
 		// to be published once the multicaster is available...
+		// 创建刷新前的监听事件集合
 		this.earlyApplicationEvents = new LinkedHashSet<>();
 	}
 
