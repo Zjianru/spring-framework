@@ -44,6 +44,7 @@ import org.springframework.util.StringUtils;
  * @since 10.03.2004
  * @see FileSystemResourceLoader
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
+ * ResourceLoader 的默认实现
  */
 public class DefaultResourceLoader implements ResourceLoader {
 
@@ -139,11 +140,18 @@ public class DefaultResourceLoader implements ResourceLoader {
 		this.resourceCaches.clear();
 	}
 
-
+	/**
+	 * 根据提供的 location 返回相应的 Resource 对象
+	 * 核心实现  两个子类都没有提供覆盖该方法
+	 *
+	 * @param location the resource location
+	 * @return Resource
+	 */
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
 
+		// 1. 通过 ProtocolResolver 来加载资源
 		for (ProtocolResolver protocolResolver : getProtocolResolvers()) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {
@@ -151,12 +159,15 @@ public class DefaultResourceLoader implements ResourceLoader {
 			}
 		}
 
+		//2. 以 / 开头，返回 ClassPathContextResource 类型的资源
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		// 3. 以 classpath: 开头，返回 ClassPathResource 类型的资源
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
+		// 4. 根据是否为文件 URL ，是则返回 FileUrlResource 类型的资源，否则返回 UrlResource 类型的资源
 		else {
 			try {
 				// Try to parse the location as a URL...
@@ -164,6 +175,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 				return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
 			}
 			catch (MalformedURLException ex) {
+				// 返回 ClassPathContextResource 类型的资源
 				// No URL -> resolve as resource path.
 				return getResourceByPath(location);
 			}

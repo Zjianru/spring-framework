@@ -24,9 +24,12 @@ import org.springframework.util.StringUtils;
  * as relative to a given {@code java.lang.Class}.
  *
  * @author Juergen Hoeller
- * @since 3.0
  * @see Class#getResource(String)
  * @see ClassPathResource#ClassPathResource(String, Class)
+ * <p>
+ * 可以根据给定的class 所在包或者所在包的子包下加载资源
+ * 覆写 #getResourceByPath(String path) 方法，并返回其对应的 ClassRelativeContextResource 的资源类型
+ * @since 3.0
  */
 public class ClassRelativeResourceLoader extends DefaultResourceLoader {
 
@@ -35,6 +38,7 @@ public class ClassRelativeResourceLoader extends DefaultResourceLoader {
 
 	/**
 	 * Create a new ClassRelativeResourceLoader for the given class.
+	 *
 	 * @param clazz the class to load resources through
 	 */
 	public ClassRelativeResourceLoader(Class<?> clazz) {

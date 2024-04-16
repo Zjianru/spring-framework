@@ -44,6 +44,8 @@ import org.springframework.util.ResourceUtils;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 28.12.2003
+ * Resource 接口的默认抽象实现
+ * 想要实现自定义的 Resource ，不要实现 Resource 接口，应该继承 AbstractResource 抽象类，然后根据当前的具体资源特性覆盖相应的方法
  */
 public abstract class AbstractResource implements Resource {
 

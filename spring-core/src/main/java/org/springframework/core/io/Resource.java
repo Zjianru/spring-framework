@@ -56,6 +56,7 @@ public interface Resource extends InputStreamSource {
 	 * <p>This method performs a definitive existence check, whereas the
 	 * existence of a {@code Resource} handle only guarantees a valid
 	 * descriptor handle.
+	 * 资源是否存在
 	 */
 	boolean exists();
 
@@ -69,6 +70,7 @@ public interface Resource extends InputStreamSource {
 	 * that the resource content cannot be read.
 	 * @see #getInputStream()
 	 * @see #exists()
+	 * 资源是否存在
 	 */
 	default boolean isReadable() {
 		return exists();
@@ -79,6 +81,7 @@ public interface Resource extends InputStreamSource {
 	 * If {@code true}, the InputStream cannot be read multiple times,
 	 * and must be read and closed to avoid resource leaks.
 	 * <p>Will be {@code false} for typical resource descriptors.
+	 * 资源所代表的句柄是否被一个 stream 打开了
 	 */
 	default boolean isOpen() {
 		return false;
@@ -91,6 +94,7 @@ public interface Resource extends InputStreamSource {
 	 * <p>This is conservatively {@code false} by default.
 	 * @since 5.0
 	 * @see #getFile()
+	 * 是否为 File
 	 */
 	default boolean isFile() {
 		return false;
