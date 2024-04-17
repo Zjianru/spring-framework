@@ -1,5 +1,6 @@
 package com.cz.demo.test;
 
+import com.cz.demo.BeanProcessor.TestBeanPostProcessor;
 import com.cz.demo.aware.TestAware;
 import com.cz.demo.pojo.User;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,19 @@ public class UserTest {
 
 		TestAware applicationAware = (TestAware) factory.getBean("testAware");
 		applicationAware.display();
+	}
+
+	@Test
+	public  void testBeanProcessor() {
+		ClassPathResource resource = new ClassPathResource("demoTest.xml");
+		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+		reader.loadBeanDefinitions(resource);
+
+		TestBeanPostProcessor processor = (TestBeanPostProcessor) factory.getBean("testBeanPostProcessor");
+		factory.addBeanPostProcessor(processor);
+
+		processor.display();
 	}
 
 }

@@ -60,13 +60,13 @@ A 可以顺利拿到 B 完成初始化。
 
 Spring解决循环依赖的核心思想在于提前曝光：
 
-通过构建函数创建A对象（A对象是半成品，还没注入属性和调用init方法）。
-A对象需要注入B对象，发现缓存里还没有B对象，将半成品对象A放入半成品缓存。
-通过构建函数创建B对象（B对象是半成品，还没注入属性和调用init方法）。
-B对象需要注入A对象，从半成品缓存里取到半成品对象A。
-B对象继续注入其他属性和初始化，之后将完成品B对象放入完成品缓存。
-A对象继续注入属性，从完成品缓存中取到完成品B对象并注入。
-A对象继续注入其他属性和初始化，之后将完成品A对象放入完成品缓存。
+1. 通过构建函数创建A对象（A对象是半成品，还没注入属性和调用init方法）
+2. A对象需要注入B对象，发现缓存里还没有B对象，将半成品对象A放入半成品缓存
+3. 通过构建函数创建B对象（B对象是半成品，还没注入属性和调用init方法）
+4. B对象需要注入A对象，从半成品缓存里取到半成品对象A
+5. B对象继续注入其他属性和初始化，之后将完成品B对象放入完成品缓存 
+6. A对象继续注入属性，从完成品缓存中取到完成品B对象并注入。
+7. A对象继续注入其他属性和初始化，之后将完成品A对象放入完成品缓存
 
 
 
@@ -85,8 +85,9 @@ A对象继续注入其他属性和初始化，之后将完成品A对象放入完
 1. 不管有没有循环依赖，都提前创建好代理对象，并将代理对象放入缓存，出现循环依赖时，其他对象直接就可以取到代理对象并注入。
 2. 不提前创建好代理对象，在出现循环依赖被其他对象注入时，才实时生成代理对象。这样在没有循环依赖的情况下，Bean就可以按着Spring设计原则的步骤来创建。
 
-Spring选择了第二种方式，那怎么做到提前曝光对象而又不生成代理呢？
-Spring就是在对象外面包一层ObjectFactory，提前曝光的是ObjectFactory对象，在被注入时才在`ObjectFactory.getObject`方式内实时生成代理对象，并将生成好的代理对象放入到第二级缓存`Map<String, Object> earlySingletonObjects`
+Spring 选择了第二种方式，那怎么做到提前曝光对象而又不生成代理呢？
+
+Spring 就是在对象外面包一层ObjectFactory，提前曝光的是ObjectFactory对象，在被注入时才在`ObjectFactory.getObject`方式内实时生成代理对象，并将生成好的代理对象放入到第二级缓存`Map<String, Object> earlySingletonObjects`
 
 `addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));`
 
@@ -122,3 +123,34 @@ Spring 在初始化主动检测当前 bean 是否实现了 Aware 接口，如果
 | ApplicationEventPublisherAware | 应用事件                            |
 | NotificationPublisherAware     | JMX通知                           |
 | BeanNameAware                  | 声明Spring Bean的名字                |
+
+## BeanPostProcessor 
+
+`BeanPostProcessor` 可以理解为是 Spring 的一个工厂钩子（其实 Spring 提供一系列的钩子，如 `Aware` 、`InitializingBean`、`DisposableBean`），
+
+是 Spring 提供的对象实例化阶段的扩展点，允许 Spring 在实例化 bean 阶段对其进行定制化修改
+
+比较常见的使用场景是处理标记接口实现类或者为当前对象提供代理实现（例如 AOP）
+
+一般普通的 `BeanFactory` 是不支持自动注册 `BeanPostProcessor` 的，需要手动调用 `#addBeanPostProcessor(BeanPostProcessor beanPostProcessor)` 方法进行注册
+
+`BeanPostProcessor` 的作用域是容器级别的，它只和所在的容器相关 ，当 `BeanPostProcessor` 完成注册后，它会应用于所有跟它在同一个容器内的 bean
+
+`ApplicationContext` 可以在其 bean 定义中自动检测所有的 `BeanPostProcessor` 并自动完成注册，同时将他们应用到随后创建的任何 Bean 中。
+
+`#postProcessBeforeInitialization(Object bean, String beanName)` 和 `#postProcessAfterInitialization(Object bean, String beanName)` 两个方法，都接收一个 Object 类型的 bean ，是已经实例化了的 instanceBean，一个 String 类型的 beanName 
+
+这两个方法是初始化 bean 的前后置处理器，他们应用 `#invokeInitMethods(String beanName, final Object bean, RootBeanDefinition mbd)` 方法的前后
+
+<img alt="img3.png" src="noteImg/BeanPostProcessor.png"/>
+
+`BeanFactory` 和 `ApplicationContext` 对 `BeanPostProcessor` 的处理不同
+
+- `ApplicationContext` 会自动检测所有实现了 `BeanPostProcessor` 接口的 bean，并完成注册
+
+- `BeanFactory` 容器时则需要手动调用 `AbstractBeanFactory#addBeanPostProcessor(BeanPostProcessor beanPostProcessor)` 方法来完成注册
+
+
+`ApplicationContext` 的 `BeanPostProcessor` 支持 Ordered，而 `BeanFactory` 的 `BeanPostProcessor` 是不支持的
+
+原因在于 `ApplicationContext` 会对 `BeanPostProcessor` 进行 Ordered 检测并完成排序，而 `BeanFactory` 中的 `BeanPostProcessor` 只跟注册的顺序有关。

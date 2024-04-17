@@ -8,4 +8,9 @@
 		<property name="name" value="cz" />
 		<property name="age" value="1" />
 	</bean>
+
+	<bean id="testBeanPostProcessor" class="com.cz.demo.BeanProcessor.TestBeanPostProcessor"/>
+
+	<bean id="testAware" class="com.cz.demo.aware.TestAware"/>
+
 </beans>
