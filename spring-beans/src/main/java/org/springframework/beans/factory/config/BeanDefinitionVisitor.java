@@ -72,6 +72,8 @@ public class BeanDefinitionVisitor {
 	/**
 	 * Traverse the given BeanDefinition object and the MutablePropertyValues
 	 * and ConstructorArgumentValues contained in them.
+	 * 遍历给定的 BeanDefinition 对象以及其中包含的 MutablePropertyValues 和 ConstructorArgumentValues
+	 *
 	 * @param beanDefinition the BeanDefinition object to traverse
 	 * @see #resolveStringValue(String)
 	 */
