@@ -5,12 +5,15 @@
 	   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="demoTest" class="com.cz.demo.pojo.User">
-		<property name="name" value="cz" />
-		<property name="age" value="1" />
+		<property name="name" value="cz"/>
+		<property name="age" value="1"/>
 	</bean>
 
 	<bean id="testBeanPostProcessor" class="com.cz.demo.BeanProcessor.TestBeanPostProcessor"/>
 
 	<bean id="testAware" class="com.cz.demo.aware.TestAware"/>
 
+	<bean id="testInitializingBean" class="com.cz.demo.InitializingBean.TestInitializingBean">
+		<property name="beanName" value="codez"/>
+	</bean>
 </beans>

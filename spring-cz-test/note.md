@@ -153,4 +153,16 @@ Spring 在初始化主动检测当前 bean 是否实现了 Aware 接口，如果
 
 `ApplicationContext` 的 `BeanPostProcessor` 支持 Ordered，而 `BeanFactory` 的 `BeanPostProcessor` 是不支持的
 
-原因在于 `ApplicationContext` 会对 `BeanPostProcessor` 进行 Ordered 检测并完成排序，而 `BeanFactory` 中的 `BeanPostProcessor` 只跟注册的顺序有关。
+原因在于 `ApplicationContext` 会对 `BeanPostProcessor` 进行 Ordered 检测并完成排序，而 `BeanFactory` 中的 `BeanPostProcessor` 只跟注册的顺序有关
+
+## InitializingBean
+
+Spring 在完成实例化后，设置完所有属性，进行 “`Aware` 接口” 和 “`BeanPostProcessor` 前置处理”后，会检测当前 bean 对象是否实现 `InitializingBean` 接口
+
+如果是，则会调用其 `#afterPropertiesSet()` 方法，进一步调整 bean 实例对象的状态
+
+通过 init-method 可以使用业务对象中定义的任何方法来实现 bean 实例对象的初始化定制化，而不再受制于 `InitializingBean#afterPropertiesSet()` 方法
+
+同时可以使用 <beans> 标签的 `default-init-method` 属性来统一指定初始化方法，这样就省了需要在每个 <bean> 标签中都设置 init-method 这样的繁琐工作
+
+比如在 default-init-method 规定所有初始化操作全部以 initBean() 命名

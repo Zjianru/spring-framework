@@ -1,10 +1,10 @@
 package com.cz.demo.test;
 
 import com.cz.demo.BeanProcessor.TestBeanPostProcessor;
+import com.cz.demo.InitializingBean.TestInitializingBean;
 import com.cz.demo.aware.TestAware;
 import com.cz.demo.pojo.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
@@ -50,8 +50,9 @@ public class UserTest {
 		// <4> 装载资源
 		reader.loadBeanDefinitions(resource);
 	}
+
 	@Test
-	public  void testAware() {
+	public void testAware() {
 		ClassPathResource resource = new ClassPathResource("demoTest.xml");
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
@@ -62,7 +63,7 @@ public class UserTest {
 	}
 
 	@Test
-	public  void testBeanProcessor() {
+	public void testBeanProcessor() {
 		ClassPathResource resource = new ClassPathResource("demoTest.xml");
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
@@ -72,6 +73,17 @@ public class UserTest {
 		factory.addBeanPostProcessor(processor);
 
 		processor.display();
+	}
+
+	@Test
+	public void testInitializingBean() {
+		ClassPathResource resource = new ClassPathResource("demoTest.xml");
+		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+		reader.loadBeanDefinitions(resource);
+
+		TestInitializingBean bean = (TestInitializingBean) factory.getBean("testInitializingBean");
+		System.out.println("bean's name is ==>" + bean.getBeanName());
 	}
 
 }

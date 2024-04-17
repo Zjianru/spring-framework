@@ -1926,16 +1926,21 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * and a chance to know about its owning bean factory (this object).
 	 * This means checking whether the bean implements InitializingBean or defines
 	 * a custom init method, and invoking the necessary callback(s) if it does.
+	 *
 	 * @param beanName the bean name in the factory (for debugging purposes)
-	 * @param bean the new bean instance we may need to initialize
-	 * @param mbd the merged bean definition that the bean was created with
-	 * (can also be {@code null}, if given an existing bean instance)
+	 * @param bean     the new bean instance we may need to initialize
+	 * @param mbd      the merged bean definition that the bean was created with
+	 *                 (can also be {@code null}, if given an existing bean instance)
 	 * @throws Throwable if thrown by init methods or by the invocation process
 	 * @see #invokeCustomInitMethod
+	 * 现在给一个bean一个反应的机会，它的所有属性都设置好了，并且有机会知道它拥有的bean工厂 (这个对象)
+	 * 这意味着检查bean是否实现了InitializingBean或定义了自定义init方法，如果实现了，则调用必要的回调。
+	 * 检查当前 bean 是否已经实现了 InitializingBean 接口，如果实现了，则会掉用其 #afterPropertiesSet() 方法
 	 */
 	protected void invokeInitMethods(String beanName, Object bean, @Nullable RootBeanDefinition mbd)
 			throws Throwable {
 
+		// 首先会检查是否是 InitializingBean ，如果是的话需要调用 afterPropertiesSet()
 		boolean isInitializingBean = (bean instanceof InitializingBean);
 		if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {
 			if (logger.isTraceEnabled()) {
@@ -1958,10 +1963,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (mbd != null && bean.getClass() != NullBean.class) {
+			// 判断是否指定了 init-method()，
+			// 如果指定了 init-method()，则再调用制定的init-method
 			String initMethodName = mbd.getInitMethodName();
 			if (StringUtils.hasLength(initMethodName) &&
 					!(isInitializingBean && "afterPropertiesSet".equals(initMethodName)) &&
 					!mbd.isExternallyManagedInitMethod(initMethodName)) {
+				// 激活用户自定义的初始化方法
+				// 利用反射机制执行
 				invokeCustomInitMethod(beanName, bean, mbd);
 			}
 		}
