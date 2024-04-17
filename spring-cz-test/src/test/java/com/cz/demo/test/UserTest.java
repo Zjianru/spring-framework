@@ -1,5 +1,6 @@
 package com.cz.demo.test;
 
+import com.cz.demo.aware.TestAware;
 import com.cz.demo.pojo.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
@@ -40,7 +41,7 @@ public class UserTest {
 	@Test
 	public void loadContainerTest() {
 		// <1> 获取资源
-		ClassPathResource resource = new ClassPathResource("bean.xml");
+		ClassPathResource resource = new ClassPathResource("demoTest.xml");
 		// <2> 获取 BeanFactory
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		// <3> 根据新建的 BeanFactory 创建一个 BeanDefinitionReader 对象，该 Reader 对象为资源的解析器
@@ -48,6 +49,15 @@ public class UserTest {
 		// <4> 装载资源
 		reader.loadBeanDefinitions(resource);
 	}
+	@Test
+	public  void testAware() {
+		ClassPathResource resource = new ClassPathResource("demoTest.xml");
+		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+		reader.loadBeanDefinitions(resource);
 
+		TestAware applicationAware = (TestAware) factory.getBean("testAware");
+		applicationAware.display();
+	}
 
 }

@@ -99,3 +99,26 @@ Spring 结合 AOP 跟 Bean 的生命周期，是在 Bean 创建完全之后通�
 在这个后置处理的 `postProcessAfterInitialization` 方法中对初始化后的 Bean 完成 AOP 代理。
 
 如果出现了循环依赖，那没有办法，只有给 Bean 先创建代理，但是没有出现循环依赖的情况下，设计之初就是让 Bean 在生命周期的最后一步完成代理而不是在实例化后就立马完成代理。
+
+## Aware 接口
+Aware 真正的含义是什么？ 感知
+
+Spring 在初始化主动检测当前 bean 是否实现了 Aware 接口，如果实现了则回调其 set 方法将相应的参数设置给该 bean ，这个时候该 bean 就从 Spring 容器中取得相应的资源
+
+部分常用的 Aware 子接口：
+
+| class                          | desc                            |
+|--------------------------------|---------------------------------|
+| LoadTimeWeaverAware            | 加载Spring Bean时织入第三方模块，如 AspectJ |
+| BeanClassLoaderAware           | 加载Spring Bean的类加载器              |
+| BootstrapContextAware          | 资源适配器BootstrapContext，如 JCA,CCI |
+| ResourceLoaderAware            | 底层访问资源的加载器                      |
+| BeanFactoryAware               | 声明BeanFactory                   |
+| PortletConfigAware             | PortletConfig                   |
+| PortletContextAware            | PortletContext                  |
+| ServletConfigAware             | ServletConfig                   |
+| ServletContextAware            | ServletContext                  |
+| MessageSourceAware             | 国际化                             |
+| ApplicationEventPublisherAware | 应用事件                            |
+| NotificationPublisherAware     | JMX通知                           |
+| BeanNameAware                  | 声明Spring Bean的名字                |
