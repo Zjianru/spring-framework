@@ -92,27 +92,43 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	 * @return the object obtained from the FactoryBean
 	 * @throws BeanCreationException if FactoryBean object creation failed
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
+	 * 从 factoryBean 获取 subBean
 	 */
 	protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+		// 注意这个isSingleton是FactoryBean#isSingleton
 		if (factory.isSingleton() && containsSingleton(beanName)) {
 			synchronized (getSingletonMutex()) {
+				// 加锁, 先从缓存拿一次
 				Object object = this.factoryBeanObjectCache.get(beanName);
 				if (object == null) {
+					// 确保缓存没有，才创建一个
 					object = doGetObjectFromFactoryBean(factory, beanName);
 					// Only post-process and store if not put there already during getObject() call above
 					// (e.g. because of circular reference processing triggered by custom getBean calls)
 					Object alreadyThere = this.factoryBeanObjectCache.get(beanName);
+
+					// 再从缓存中获取一遍，如果缓存中存在对象了，则把当前对象覆盖
+					// 并且会跳过subBean的beanPostProcessor调用流程，这里其实是用来解决循环依赖问题的
 					if (alreadyThere != null) {
 						object = alreadyThere;
 					}
+
+					// 正常流程是走这里，到这里我们已经拿到subBean实例了
 					else {
 						if (shouldPostProcess) {
+							// 如果当前subBean已经在创建中了，那就直接返回了。
+							// 其实就是判断在不在singletonsCurrentlyInCreation这个容器里
 							if (isSingletonCurrentlyInCreation(beanName)) {
 								// Temporarily return non-post-processed object, not storing it yet..
 								return object;
 							}
+							// 把当前beanName加入singletonsCurrentlyInCreation容器（set）
+							// 如果加入不进去会报循环依赖错误
 							beforeSingletonCreation(beanName);
 							try {
+								// 调用 beanPostProcessor
+								// 由于subBean的初始化/销毁等生命周期都是由factoryBean自行管理的
+								// 所以这里就是调用了bean完全实例化之后的 postProcessAfterInitialization方法， AOP切面就是在这个埋点里做的
 								object = postProcessObjectFromFactoryBean(object, beanName);
 							}
 							catch (Throwable ex) {
@@ -120,10 +136,12 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 										"Post-processing of FactoryBean's singleton object failed", ex);
 							}
 							finally {
+								// 从singletonsCurrentlyInCreation容器删除
 								afterSingletonCreation(beanName);
 							}
 						}
 						if (containsSingleton(beanName)) {
+							// 最后放入缓存
 							this.factoryBeanObjectCache.put(beanName, object);
 						}
 					}
@@ -131,41 +149,48 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				return object;
 			}
 		}
+		// 非单例
 		else {
+			// 直接从FactoryBean#getObject创建一个了
 			Object object = doGetObjectFromFactoryBean(factory, beanName);
 			if (shouldPostProcess) {
 				try {
+					// 调用BeanPostProcessor
 					object = postProcessObjectFromFactoryBean(object, beanName);
 				}
 				catch (Throwable ex) {
 					throw new BeanCreationException(beanName, "Post-processing of FactoryBean's object failed", ex);
 				}
 			}
+			// 返回
 			return object;
 		}
 	}
 
 	/**
 	 * Obtain an object to expose from the given FactoryBean.
-	 * @param factory the FactoryBean instance
+	 *
+	 * @param factory  the FactoryBean instance
 	 * @param beanName the name of the bean
 	 * @return the object obtained from the FactoryBean
 	 * @throws BeanCreationException if FactoryBean object creation failed
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
+	 * 从 FactoryBean 获取对象，其实内部就是调用 FactoryBean#getObject() 方法
 	 */
 	private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, String beanName) throws BeanCreationException {
 		Object object;
 		try {
+			// 需要权限验证
 			if (System.getSecurityManager() != null) {
 				AccessControlContext acc = getAccessControlContext();
 				try {
+					// 从 FactoryBean 中，获得 Bean 对象
 					object = AccessController.doPrivileged((PrivilegedExceptionAction<Object>) factory::getObject, acc);
-				}
-				catch (PrivilegedActionException pae) {
+				} catch (PrivilegedActionException pae) {
 					throw pae.getException();
 				}
-			}
-			else {
+			} else {
+				// 从 FactoryBean 中，获得 Bean 对象
 				object = factory.getObject();
 			}
 		}
