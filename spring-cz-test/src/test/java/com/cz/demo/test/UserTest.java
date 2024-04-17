@@ -1,7 +1,7 @@
 package com.cz.demo.test;
 
-import com.cz.demo.BeanProcessor.TestBeanPostProcessor;
-import com.cz.demo.InitializingBean.TestInitializingBean;
+import com.cz.demo.beanProcessor.TestBeanPostProcessor;
+import com.cz.demo.initializingBean.TestInitializingBean;
 import com.cz.demo.aware.TestAware;
 import com.cz.demo.pojo.User;
 import org.junit.jupiter.api.Test;
@@ -84,6 +84,17 @@ public class UserTest {
 
 		TestInitializingBean bean = (TestInitializingBean) factory.getBean("testInitializingBean");
 		System.out.println("bean's name is ==>" + bean.getBeanName());
+	}
+
+	@Test
+	public void TestBeanFactoryPostProcessor() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("demoTest.xml");
+
+		User demoTest1 = (User)context.getBean("demoTest1");
+		System.out.println("bean's name is ==>" + demoTest1.getName());
+
+		User demoTest2 = (User)context.getBean("demoTest2");
+		System.out.println("bean's name is ==>" + demoTest2.getName());
 	}
 
 }

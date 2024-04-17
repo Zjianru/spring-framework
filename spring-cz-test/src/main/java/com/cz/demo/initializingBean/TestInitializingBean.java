@@ -1,4 +1,4 @@
-package com.cz.demo.InitializingBean;
+package com.cz.demo.initializingBean;
 
 import org.springframework.beans.factory.InitializingBean;
 

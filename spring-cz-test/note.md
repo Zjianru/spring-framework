@@ -241,3 +241,35 @@ Spring Bean 的生命周期过程总结（方法级别）：
 12. 在容器进行关闭之前，如果该 bean 配置了 `destroy`-method ，则调用其指定的方法
 
 到这里一个 bean 也就完成了它的一生
+
+## BeanFactoryPostProcessor
+
+BeanFactoryPostProcessor 的机制，就相当于给了我们在 Bean 实例化之前最后一次修改 BeanDefinition 的机会，我们可以利用这个机会对 BeanDefinition 来进行一些额外的操作，比如更改某些 bean 的一些属性，给某些 Bean 增加一些其他的信息等等操作
+
+`#postProcessBeanFactory(...)` 方法，工作于 BeanDefinition 加载完成之后，Bean 实例化之前，其主要作用是对加载 BeanDefinition 进行修改
+
+有一点需要需要注意的是在 `#postProcessBeanFactory(...)` 方法中，千万不能进行 Bean 的实例化工作，因为这样会导致 Bean 过早实例化，会产生严重后果
+
+`BeanFactoryPostProcessor` 是与 `BeanDefinition` 打交道的，如果想要与 Bean 打交道，请使用 `BeanPostProcessor`
+
+与 `BeanPostProcessor` 一样，`BeanFactoryPostProcessor` 同样支持排序，一个容器可以同时拥有多个 BeanFactoryPostProcessor ，如果在乎顺序，可以实现 Ordered 接口
+
+对于 `ApplicationContext` 来说，使用 `BeanFactoryPostProcessor` 非常方便，会自动识别配置文件中的 `BeanFactoryPostProcessor` 并且完成注册和调用，只需要简单的配置声明即可
+
+对于 `BeanFactory` 容器来说则不行，他和 `BeanPostProcessor` 一样需要容器主动去进行注册调用，方法如下：
+
+```java
+TestBeanFactoryPostProcessor1 process = new TestBeanFactoryPostProcessor1();
+process.postProcessBeanFactory(factory);
+```
+
+一般情况下不会主动去自定义 `BeanFactoryPostProcessor`，Spring 提供了几个常用的
+
+1. `PropertyPlaceholderConfigurer` 允许在 XML 配置文件中使用占位符并将这些占位符所代表的资源单独配置到简单的 `properties` 文件中来加载
+2. `PropertyOverrideConfigurer` 则允许我们使用占位符来明确表明 bean 定义中的 property 与 properties 文件中的各配置项之间的对应关系
+
+## PropertyPlaceholderConfigurer
+`PropertyPlaceholderConfigurer` 允许用 Properties 文件中的属性，来定义应用上下文（配置文件或者注解）
+
+在 XML 配置文件（或者其他方式，如注解方式）中可以使用占位符的方式来定义一些资源，并将这些占位符所代表的资源配置到 Properties 中，使用时只需要对 Properties 文件进行修改即可
+`PropertyPlaceholderConfigurer` 间接实现了 Aware 和 BeanFactoryPostProcessor 两大扩展接口

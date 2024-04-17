@@ -6596,7 +6596,7 @@ of this section.
 The database initializer depends on a `DataSource` instance and runs the scripts
 provided in its initialization callback (analogous to an `init-method` in an XML bean
 definition, a `@PostConstruct` method in a component, or the `afterPropertiesSet()`
-method in a component that implements `InitializingBean`). If other beans depend on the
+method in a component that implements `initializingBean`). If other beans depend on the
 same data source and use the data source in an initialization callback, there
 might be a problem because the data has not yet been initialized. A common example of
 this is a cache that initializes eagerly and loads data from the database on application

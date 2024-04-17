@@ -6,14 +6,27 @@
 
 	<bean id="demoTest" class="com.cz.demo.pojo.User">
 		<property name="name" value="cz"/>
+		<property name="age" value="0"/>
+	</bean>
+
+	<bean id="demoTest1" class="com.cz.demo.pojo.User">
+		<property name="name" value="cz1"/>
 		<property name="age" value="1"/>
 	</bean>
 
-	<bean id="testBeanPostProcessor" class="com.cz.demo.BeanProcessor.TestBeanPostProcessor"/>
+	<bean id="demoTest2" class="com.cz.demo.pojo.User">
+		<property name="name" value="cz2"/>
+		<property name="age" value="2"/>
+	</bean>
+
+	<bean id="testBeanPostProcessor" class="com.cz.demo.beanProcessor.TestBeanPostProcessor"/>
 
 	<bean id="testAware" class="com.cz.demo.aware.TestAware"/>
 
-	<bean id="testInitializingBean" class="com.cz.demo.InitializingBean.TestInitializingBean">
+	<bean id="testInitializingBean" class="com.cz.demo.initializingBean.TestInitializingBean">
 		<property name="beanName" value="codez"/>
 	</bean>
+
+	<bean class="com.cz.demo.beanFactoryPostProcessor.TestBeanFactoryPostProcessor1"/>
+	<bean class="com.cz.demo.beanFactoryPostProcessor.TestBeanFactoryPostProcessor2"/>
 </beans>

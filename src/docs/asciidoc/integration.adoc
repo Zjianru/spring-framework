@@ -854,7 +854,7 @@ Auto-detection is not implemented for remote interfaces
 
 The main reason why auto-detection of implemented interfaces does not occur for remote
 interfaces is to avoid opening too many doors to remote callers. The target object might
-implement internal callback interfaces, such as `InitializingBean` or `DisposableBean`
+implement internal callback interfaces, such as `initializingBean` or `DisposableBean`
 which one would not want to expose to callers.
 
 Offering a proxy with all interfaces implemented by the target usually does not matter

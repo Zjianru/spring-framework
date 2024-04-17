@@ -3373,7 +3373,7 @@ of a bean. This section groups them as follows:
 === Lifecycle Callbacks
 
 To interact with the container's management of the bean lifecycle, you can implement
-the Spring `InitializingBean` and `DisposableBean` interfaces. The container calls
+the Spring `initializingBean` and `DisposableBean` interfaces. The container calls
 `afterPropertiesSet()` for the former and `destroy()` for the latter to let the bean
 perform certain actions upon initialization and destruction of your beans.
 
@@ -3406,14 +3406,14 @@ The lifecycle callback interfaces are described in this section.
 
 The `org.springframework.beans.factory.InitializingBean` interface lets a bean
 perform initialization work after the container has set all necessary properties on the
-bean. The `InitializingBean` interface specifies a single method:
+bean. The `initializingBean` interface specifies a single method:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 	void afterPropertiesSet() throws Exception;
 ----
 
-We recommend that you do not use the `InitializingBean` interface, because it
+We recommend that you do not use the `initializingBean` interface, because it
 unnecessarily couples the code to Spring. Alternatively, we suggest using
 the <<beans-postconstruct-and-predestroy-annotations, `@PostConstruct`>> annotation or
 specifying a POJO initialization method. In the case of XML-based configuration metadata,
@@ -3570,7 +3570,7 @@ default behavior with Java configuration.
 ==== Default Initialization and Destroy Methods
 
 When you write initialization and destroy method callbacks that do not use the
-Spring-specific `InitializingBean` and `DisposableBean` callback interfaces, you
+Spring-specific `initializingBean` and `DisposableBean` callback interfaces, you
 typically write methods with names such as `init()`, `initialize()`, `dispose()`, and so
 on. Ideally, the names of such lifecycle callback methods are standardized across a
 project so that all developers use the same method names and ensure consistency.
@@ -3684,7 +3684,7 @@ Multiple lifecycle mechanisms configured for the same bean, with different
 initialization methods, are called as follows:
 
 . Methods annotated with `@PostConstruct`
-. `afterPropertiesSet()` as defined by the `InitializingBean` callback interface
+. `afterPropertiesSet()` as defined by the `initializingBean` callback interface
 . A custom configured `init()` method
 
 Destroy methods are called in the same order:
@@ -8048,7 +8048,7 @@ and can use the `@PostConstruct` and `@PreDestroy` annotations from JSR-250. See
 details.
 
 The regular Spring <<beans-factory-nature, lifecycle>> callbacks are fully supported as
-well. If a bean implements `InitializingBean`, `DisposableBean`, or `Lifecycle`, their
+well. If a bean implements `initializingBean`, `DisposableBean`, or `Lifecycle`, their
 respective methods are called by the container.
 
 The standard set of `*Aware` interfaces (such as <<beans-beanfactory, BeanFactoryAware>>,
@@ -11060,7 +11060,7 @@ Its specific contracts are mostly used in integration with other parts of Spring
 related third-party frameworks, and its `DefaultListableBeanFactory` implementation
 is a key delegate within the higher-level `GenericApplicationContext` container.
 
-`BeanFactory` and related interfaces (such as `BeanFactoryAware`, `InitializingBean`,
+`BeanFactory` and related interfaces (such as `BeanFactoryAware`, `initializingBean`,
 `DisposableBean`) are important integration points for other framework components.
 By not requiring any annotations or even reflection, they allow for very efficient
 interaction between the container and its components. Application-level beans may
